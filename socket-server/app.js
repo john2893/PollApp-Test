@@ -11,7 +11,7 @@ const io = socketIo(server);
 
 //storing data
 var connections = [];
-var title = "Poll Name" // admin can set this
+var title = "Poll Name from Server" // admin can set this
 
 
 io.on("connection", socket => {
@@ -20,16 +20,27 @@ io.on("connection", socket => {
         socket.disconnect();
         console.log('Disconnect : %s sockets remainings' , connections.length)
     });
+
+    socket.on('join', function(dataFromClient){
+      var newMember = {
+        id: this.id,
+        name:dataFromClient.name
+
+      };
+      this.emit('joined', newMember) //sending this obj to client
+      console.log( " %s joined the poll", dataFromClient.name);
+    });
     socket.emit('welcome', {
         title:title
     });
     connections.push(socket)
+
     console.log("Connected : %s sockets connected", connections.length);
 
-    console.log(socket.id), setInterval(
-        () => getApiAndEmit(socket),
-        10000
-    );
+    // console.log(socket.id), setInterval(
+    //     () => getApiAndEmit(socket),
+    //     1
+    // );
 
   socket.on("disconnect", () => console.log("Client disconnected"));
 });
